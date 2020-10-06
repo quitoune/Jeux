@@ -1,0 +1,1 @@
+Cliquer sur les bulles pour faire exploser la bulle et ses voisines de même couleur pour gagner le plus de points possible.
