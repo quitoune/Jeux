@@ -66,4 +66,15 @@ public class Utils {
         }
         return datas;
     }
+    
+    static public String join(String delimiter, Integer[] values){
+        String join = "";
+        for(int k = 0; k < values.length; k++){
+            join += values[k];
+            if(k != values.length - 1){
+                join += delimiter;
+            }
+        }
+        return join;
+    }
 }

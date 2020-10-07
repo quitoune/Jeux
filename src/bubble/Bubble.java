@@ -32,7 +32,7 @@ public class Bubble {
         lePlateau = new Plateau(nombreDeCouleur);
         score = 0;
         gravite = false;
-        ajoutCol = true;
+        ajoutCol = false;
     }
     
     public Bubble(int nombreDeCouleur, boolean gravite, boolean ajoutCol){
@@ -99,6 +99,14 @@ public class Bubble {
                     lePlateau.droite();
                 }
                 if(!lePlateau.restePossibilites()){
+                    System.out.println("*************************************************");
+                    System.out.println("Score final: " + this.getScore());
+                    System.out.println("*************************************************");
+                    if(this.updateClassement()){
+                        JOptionPane.showMessageDialog(null, "Nouveau meilleur score\nScore final: " + this.getScore(), "Partie terminée", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Score final: " + this.getScore(), "Partie terminée", JOptionPane.INFORMATION_MESSAGE);
+                    }
                     System.out.println("Fin");
                 }
             }
@@ -115,8 +123,8 @@ public class Bubble {
         lePlateau.dessiner(g);
     }
     
-    public String fileName(){
-        return "resources/" + this.convert(gravite) + "gravite_" + this.convert(ajoutCol) + "ajout_" + nombreDeCouleur;
+    public String fileName(int nombre, boolean gravite, boolean ajout){
+        return "resources/stats/" + this.convert(gravite) + "gravite_" + this.convert(ajout) + "ajout_" + nombre + ".txt";
     }
     
     public String convert(boolean bool){
@@ -182,6 +190,60 @@ public class Bubble {
                 line = f.readLine();
             }
             JOptionPane.showMessageDialog(null, message, "Aide", JOptionPane.INFORMATION_MESSAGE);
+            f.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public Integer[] getClassement(int nombreCouleur, boolean gravite, boolean ajout){
+        BufferedReader f;
+        try {
+            // doit etre utilise sous surveillance de la levee d'exception
+            f = new BufferedReader(new FileReader(this.fileName(nombreCouleur, false, true)));
+            Integer[] values = Utils.getData(f.readLine());
+            f.close();
+            return values;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new Integer[0];
+    }
+    
+    public void afficherClassement(int nombreCouleur, boolean gravite, boolean ajout){
+        Integer[] values = this.getClassement(nombreCouleur, gravite, ajout);
+        String message = "";
+        for(int k = 0; k < 10; k++){
+            message += (k + 1) + ". " + values[k] + "\n";
+        }
+        JOptionPane.showMessageDialog(null, message, "Classement", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    public boolean updateClassement(){
+        Integer[] values = this.getClassement(nombreDeCouleur, gravite, ajoutCol);
+        for(int k = 0; k < 10; k++){
+            if(values[k] <= this.score){
+                for(int j = 9; k <= j; j--){
+                    System.out.println(j);
+                    if(j == k){
+                        values[j] = this.score;
+                    } else {
+                        values[j] = values[j - 1];
+                    }
+                }
+            }
+            this.updateClassement(values);
+            return true;
+        }
+        return false;
+    }
+    
+    public void updateClassement(Integer[] values){
+        FileWriter f;
+        try {
+            // doit etre utilise sous surveillance de la levee d'exception
+            f = new FileWriter(this.fileName(nombreDeCouleur, gravite, ajoutCol));
+            f.write(Utils.join(";", values));
             f.close();
         } catch (IOException e) {
             e.printStackTrace();

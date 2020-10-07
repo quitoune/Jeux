@@ -8,6 +8,8 @@ package tests;
 import objet.Balle;
 import objet.Bulle;
 import objet.Element;
+import bubble.Bubble;
+import utils.Utils;
 import java.awt.Color;
 
 /**
@@ -46,5 +48,9 @@ public class TestElement {
         System.out.println("Position: [" + randomBulle.getAbscisse() + ", " + randomBulle.getOrdonnee() + "]");
         System.out.println("Longueur: " + randomBulle.getLongueur());
         System.out.println("************************************");
+        
+        Integer[] values = {492, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        String join = Utils.join(";", values);
+        System.out.println(join);
     }
 }

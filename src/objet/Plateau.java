@@ -328,27 +328,4 @@ public class Plateau extends Objet {
         }
         return attributes;
     }
-    
-    /**
-     * Enregistrement le plateau actuel
-     */
-    public void sauvegarder(){
-        Fichier.ecrire("resources/games.txt", "Plateau\n" + this.getAttributes());
-    }
-    
-    /**
-     * Chargement du plateau enregistré
-     */
-    public void charger(){
-        Fichier.lire("resources/games.txt");
-    }
-    
-    @Override
-    public void create(ArrayList<String> lines){
-        for(int i = 0; i < lines.size(); i++){
-            Integer[] values = Utils.getData(lines.get(i));
-            Color color = new Color(values[0], values[1], values[2]);
-            place[values[3]][values[4]].setCouleur(color);
-        }
-    }
 }
