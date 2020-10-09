@@ -8,6 +8,7 @@ package tests;
 import java.awt.Graphics;
 import objet.Bulle;
 import bubble.Bubble;
+import bubble.Config;
 import java.awt.event.WindowEvent;
 
 /**
@@ -123,7 +124,7 @@ public class TestPlateau extends javax.swing.JFrame {
         });
         jMenu2.add(jMenuItem5);
 
-        jMenuItem6.setText("Statistiques");
+        jMenuItem6.setText("Classement");
         jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem6ActionPerformed(evt);
@@ -178,16 +179,11 @@ public class TestPlateau extends javax.swing.JFrame {
         // TODO add your handling code here:
         int x = evt.getX() / Bulle.diametre;
         int y = evt.getY() / Bulle.diametre;
-        jeu.update(x, y);
-        
-        label2.setText(Integer.toString(jeu.getScore()));
-        jPanel1.repaint();
+        jeu.stop(jeu.update(x, y), label2, jPanel1);
     }//GEN-LAST:event_jPanel1MousePressed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        jeu.restart();
-        label2.setText(Integer.toString(jeu.getScore()));
-        jPanel1.repaint();
+        jeu.restart(label2, jPanel1);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
@@ -195,8 +191,7 @@ public class TestPlateau extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-        jeu.charger();
-        jPanel1.repaint();
+        jeu.charger(jPanel1);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
@@ -204,11 +199,11 @@ public class TestPlateau extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
-        // TODO add your handling code here:
+        jeu.updateConfig(this, label2, jPanel1);
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
-        jeu.afficherClassement(3, true, true);
+        jeu.afficherClassement(new Config(3, true, true));
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed

@@ -5,10 +5,11 @@
  */
 package tests;
 
+import bubble.Config;
+import bubble.ConfigBox;
 import objet.Balle;
 import objet.Bulle;
 import objet.Element;
-import bubble.Bubble;
 import utils.Utils;
 import java.awt.Color;
 
@@ -52,5 +53,8 @@ public class TestElement {
         Integer[] values = {492, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         String join = Utils.join(";", values);
         System.out.println(join);
+        
+        ConfigBox box = new ConfigBox(null, "Configuration", true, new Config(8, false, false));
+        box.afficher();
     }
 }

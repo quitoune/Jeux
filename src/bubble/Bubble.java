@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import objet.Bulle;
 import objet.Plateau;
 import utils.Utils;
+import javax.swing.JFrame;
 
 /**
  *
@@ -23,23 +24,20 @@ import utils.Utils;
  */
 public class Bubble {
     private Plateau lePlateau;
-    private int nombreDeCouleur;
+    private Config config;
     private int score;
-    private boolean gravite, ajoutCol;
+    static protected final String path = "resources/bubble/";
     
     public Bubble(){
-        nombreDeCouleur = 3;
-        lePlateau = new Plateau(nombreDeCouleur);
+        config = new Config();
+        config.getConfig();
+        lePlateau = new Plateau(config.getNombreDeCouleur());
         score = 0;
-        gravite = false;
-        ajoutCol = false;
     }
     
     public Bubble(int nombreDeCouleur, boolean gravite, boolean ajoutCol){
-        lePlateau = new Plateau(nombreDeCouleur);
-        this.nombreDeCouleur = nombreDeCouleur;
-        this.ajoutCol = ajoutCol;
-        this.gravite = gravite;
+        config = new Config(nombreDeCouleur, gravite, ajoutCol);
+        lePlateau = new Plateau(config.getNombreDeCouleur());
         score = 0;
     }
     
@@ -51,12 +49,12 @@ public class Bubble {
         lePlateau = plateau;
     }
     
-    public int getNombreDeCouleur(){
-        return nombreDeCouleur;
+    public Config getConfig(){
+        return config;
     }
     
-    public void setNombreDeCouleur(int nombre){
-        this.nombreDeCouleur = nombre;
+    public void setConfig(Config config){
+        this.config = config;
     }
     
     public int getScore(){
@@ -67,23 +65,7 @@ public class Bubble {
         score = score + point * (point - 1);
     }
     
-    public boolean getGravite(){
-        return gravite;
-    }
-    
-    public void setGravite(boolean gravite){
-        this.gravite = gravite;
-    }
-    
-    public boolean getAjoutCol(){
-        return ajoutCol;
-    }
-    
-    public void setAjoutCol(boolean ajoutCol){
-        this.ajoutCol = ajoutCol;
-    }
-    
-    public void update(int x, int y){
+    public int update(int x, int y){
         if(!lePlateau.getPlace(x, y).getCouleur().equals(Color.BLACK)){
             if(lePlateau.aDesVoisins(x, y)){
                 CollectionBulle ensemble = lePlateau.ensembleVoisins(x, y);
@@ -92,10 +74,10 @@ public class Bubble {
                     lePlateau.supprimer((Bulle) ensemble.get(k));
                 }
                 lePlateau.bas();
-                if(ajoutCol){
-                    lePlateau.ajouterColonne(nombreDeCouleur);
+                if(config.getAjoutCol()){
+                    lePlateau.ajouterColonne(config.getNombreDeCouleur());
                 }
-                if(gravite){
+                if(config.getGravite()){
                     lePlateau.droite();
                 }
                 if(!lePlateau.restePossibilites()){
@@ -103,28 +85,51 @@ public class Bubble {
                     System.out.println("Score final: " + this.getScore());
                     System.out.println("*************************************************");
                     if(this.updateClassement()){
-                        JOptionPane.showMessageDialog(null, "Nouveau meilleur score\nScore final: " + this.getScore(), "Partie terminée", JOptionPane.INFORMATION_MESSAGE);
+                        return 2;
                     } else {
-                        JOptionPane.showMessageDialog(null, "Score final: " + this.getScore(), "Partie terminée", JOptionPane.INFORMATION_MESSAGE);
+                        return 1;
                     }
-                    System.out.println("Fin");
                 }
             }
         }
+        return 0;
     }
     
-    public void restart(){
-        System.out.println("Nombre de couleur: " + nombreDeCouleur + " - Gravité: " + gravite + " - Ajout de colonne: " + ajoutCol);
-        this.setPlateau(new Plateau(nombreDeCouleur));
+    public void stop(int i, java.awt.Label label, javax.swing.JPanel panel){
+        label.setText(Integer.toString(this.getScore()));
+        panel.repaint();
+        String title = "Partie terminée";
+        int type = JOptionPane.INFORMATION_MESSAGE;
+        String text = "Score final: " + this.getScore();
+        switch(i){
+            case 2:
+                text = "Nouveau meilleur score\n" + text;
+                JOptionPane.showMessageDialog(null, text, title, type, null);
+                this.restart(label, panel);
+                break;
+            case 1:
+                JOptionPane.showMessageDialog(null, text, title, type, null);
+                this.restart(label, panel);
+                break;
+            default:
+                break;
+        }
+    }
+    
+    public void restart(java.awt.Label label, javax.swing.JPanel panel){
+        System.out.println("Nombre de couleur: " + config.getNombreDeCouleur() + " - Gravité: " + config.getGravite() + " - Ajout de colonne: " + config.getAjoutCol());
+        this.setPlateau(new Plateau(config.getNombreDeCouleur()));
         this.score = 0;
+        label.setText(Integer.toString(this.getScore()));
+        panel.repaint();
     }
     
     public void dessiner(Graphics g){
         lePlateau.dessiner(g);
     }
     
-    public String fileName(int nombre, boolean gravite, boolean ajout){
-        return "resources/stats/" + this.convert(gravite) + "gravite_" + this.convert(ajout) + "ajout_" + nombre + ".txt";
+    public String fileName(Config config){
+        return Bubble.path + "stats/" + this.convert(config.getGravite()) + "gravite_" + this.convert(config.getAjoutCol()) + "ajout_" + config.getNombreDeCouleur() + ".txt";
     }
     
     public String convert(boolean bool){
@@ -139,10 +144,10 @@ public class Bubble {
         FileWriter f;
         try {
             // doit etre utilise sous surveillance de la levee d'exception
-            f = new FileWriter("resources/game.txt");
-            f.write(nombreDeCouleur + "\n");
-            f.write(gravite + "\n");
-            f.write(ajoutCol + "\n");
+            f = new FileWriter(Bubble.path + "game.txt");
+            f.write(config.getNombreDeCouleur() + "\n");
+            f.write(config.getGravite() + "\n");
+            f.write(config.getAjoutCol() + "\n");
             f.write(score + "\n");
             for(int k = 0; k < 10; k++){
                 for(int j = 0; j < 10; j++){
@@ -156,14 +161,14 @@ public class Bubble {
         }
     }
     
-    public void charger(){
+    public void charger(javax.swing.JPanel panel){
         BufferedReader f;
         try {
             // doit etre utilise sous surveillance de la levee d'exception
-            f = new BufferedReader(new FileReader("resources/game.txt"));
-            nombreDeCouleur = Integer.parseInt(f.readLine());
-            gravite = Boolean.parseBoolean(f.readLine());
-            ajoutCol = Boolean.parseBoolean(f.readLine());
+            f = new BufferedReader(new FileReader(Bubble.path + "game.txt"));
+            config.setNombreDeCouleur(Integer.parseInt(f.readLine()));
+            config.setGravite(Boolean.parseBoolean(f.readLine()));
+            config.setAjoutCol(Boolean.parseBoolean(f.readLine()));
             score = Integer.parseInt(f.readLine());
             for(int k = 0; k < 10; k++){
                 for(int j = 0; j < 10; j++){
@@ -175,6 +180,7 @@ public class Bubble {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        panel.repaint();
     }
     
     public void aide(){
@@ -183,7 +189,7 @@ public class Bubble {
         String message = "";
         try {
             // doit etre utilise sous surveillance de la levee d'exception
-            f = new BufferedReader(new FileReader("resources/aide.txt"));
+            f = new BufferedReader(new FileReader(Bubble.path + "aide.txt"));
             line = f.readLine();
             while(line != null && !"".equals(line)){
                 message += line + "\n";
@@ -196,11 +202,11 @@ public class Bubble {
         }
     }
     
-    public Integer[] getClassement(int nombreCouleur, boolean gravite, boolean ajout){
+    public Integer[] getClassement(Config config){
         BufferedReader f;
         try {
             // doit etre utilise sous surveillance de la levee d'exception
-            f = new BufferedReader(new FileReader(this.fileName(nombreCouleur, false, true)));
+            f = new BufferedReader(new FileReader(this.fileName(config)));
             Integer[] values = Utils.getData(f.readLine());
             f.close();
             return values;
@@ -210,8 +216,8 @@ public class Bubble {
         return new Integer[0];
     }
     
-    public void afficherClassement(int nombreCouleur, boolean gravite, boolean ajout){
-        Integer[] values = this.getClassement(nombreCouleur, gravite, ajout);
+    public void afficherClassement(Config config){
+        Integer[] values = this.getClassement(config);
         String message = "";
         for(int k = 0; k < 10; k++){
             message += (k + 1) + ". " + values[k] + "\n";
@@ -220,33 +226,46 @@ public class Bubble {
     }
     
     public boolean updateClassement(){
-        Integer[] values = this.getClassement(nombreDeCouleur, gravite, ajoutCol);
+        boolean new_score = false;
+        Integer[] values = this.getClassement(config);
         for(int k = 0; k < 10; k++){
             if(values[k] <= this.score){
                 for(int j = 9; k <= j; j--){
-                    System.out.println(j);
                     if(j == k){
                         values[j] = this.score;
+                        new_score = true;
                     } else {
                         values[j] = values[j - 1];
                     }
                 }
             }
-            this.updateClassement(values);
-            return true;
+            if(new_score){
+                this.updateClassement(values);
+                return new_score;
+            }
         }
-        return false;
+        return new_score;
     }
     
     public void updateClassement(Integer[] values){
         FileWriter f;
         try {
             // doit etre utilise sous surveillance de la levee d'exception
-            f = new FileWriter(this.fileName(nombreDeCouleur, gravite, ajoutCol));
+            f = new FileWriter(this.fileName(config));
             f.write(Utils.join(";", values));
             f.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    
+    public void updateConfig(JFrame frame, java.awt.Label label, javax.swing.JPanel panel){
+        ConfigBox box = new ConfigBox(frame, "Configuration", true, this.config);
+        Config new_config = box.afficher();
+        if(!config.equals(new_config)){
+            this.setConfig(new_config);
+            this.getConfig().saveConfig();
+            this.restart(label, panel);
         }
     }
 }
