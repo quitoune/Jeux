@@ -8,8 +8,6 @@ package objet;
 import collection.CollectionBulle;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.ArrayList;
-import utils.Fichier;
 import utils.Utils;
 
 /**
